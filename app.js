@@ -1,14 +1,13 @@
-let canvas = document.getElementById("canvas");
+const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
-let x = canvas.width / 2;
-let y = canvas.height - 30;
-let velocityX = 1;
-let velocityY = -1;
-const ballRadius = 10;
+const ballcount = document.getElementById("ball-count");
 
-function drawBall() {
+let balls = []; 
+const initialBall = { x: canvas.width / 2, y: canvas.height - 30, velocityX: 2, velocityY: -2, radius: 5 };
+
+function drawBall(x, y, radius) {
     ctx.beginPath();
-    ctx.arc(x, y, ballRadius, 0, Math.PI * 2);
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
     ctx.fillStyle = "#fff";
     ctx.fill();
     ctx.closePath();
@@ -16,22 +15,41 @@ function drawBall() {
 
 function draw() {
     ctx.clearRect(0, 0, canvas.clientWidth, canvas.height);
-    drawBall();
+    balls.forEach(ball => {
+        drawBall(ball.x, ball.y, ball.radius);
 
-    if (x + velocityX > canvas.width - ballRadius || x + velocityX < ballRadius) {
-        velocityX = -velocityX;
-    }
-    if (y + velocityY > canvas.height - ballRadius || y + velocityY < ballRadius){
-        velocityY= -velocityY;
-    }
+        let hitWall = false;
 
-    x += velocityX;
-    y += velocityY;
+        if (ball.x + ball.velocityX > canvas.width - ball.radius || ball.x + ball.velocityX < ball.radius) {
+            ball.velocityX = -ball.velocityX;
+            // console.log("Hit");
+            createNewBall();
+        }
+        if (ball.y + ball.velocityY > canvas.height - ball.radius || ball.y + ball.velocityY < ball.radius) {
+            ball.velocityY = -ball.velocityY;
+            // console.log("Hit");
+            createNewBall();
+        }
+
+        ball.x += ball.velocityX;
+        ball.y += ball.velocityY;
+    });
+}
+
+function createNewBall() {
+    let newBall = Object.assign({}, initialBall); // Clone initial ball object
+    // newBall.radius *= 2; // Double the radius
+    newBall.x = Math.floor(Math.random() * (canvas.width - newBall.radius * 2)) + newBall.radius;
+    newBall.y = Math.floor(Math.random() * (canvas.height - newBall.radius * 2)) + newBall.radius;
+    balls.push(newBall);
+    ballcount.innerHTML = "Ball Count: " + balls.length;
 }
 
 function startGame() {
+    balls.push(initialBall);
+    ballcount.innerHTML = "Ball Count: " + balls.length;
+
     const interval = setInterval(draw, 10);
 }
 
 startGame();
-
